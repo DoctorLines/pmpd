@@ -12,7 +12,9 @@ use Smt\Pmpd\Response\Response;
 class SocketResponse implements Response
 {
     protected $responseData = [];
+    protected $context;
     private $empty = false;
+
     const ACK_PATTERN = '/^ACK\ \[([0-9]+)\@([0-9]+)\]\ \{(\w+)\}\ (.*)$/';
 
     /**
@@ -26,7 +28,20 @@ class SocketResponse implements Response
         }
         foreach ($raw as $responseLine) {
             preg_match('/(\w+)\:\ (.*)$/', $responseLine, $matches);
-            $this->responseData[$matches[1]] = $matches[2];
+
+            // Convert repeated kes to data array
+            if (array_key_exists($matches[1], $this->responseData)) {
+
+                if (!is_array($this->responseData[$matches[1]])) {
+                    $this->responseData[$matches[1]][] = $this->responseData[$matches[1]];
+                }
+
+                $this->responseData[$matches[1]][] = $matches[2];
+
+            } else {
+                // Default behavior
+                $this->responseData[$matches[1]] = $matches[2];
+            }
         }
     }
 
@@ -74,5 +89,15 @@ class SocketResponse implements Response
             ->setCommand($matches[3])
             ->setMessage($matches[4])
         ;
+    }
+
+    /**
+     * @param string $context 
+     * @return SocketResponse
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
+        return $this;
     }
 }
