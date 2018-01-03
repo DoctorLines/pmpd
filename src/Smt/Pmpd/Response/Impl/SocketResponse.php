@@ -85,9 +85,9 @@ class SocketResponse implements Response
         preg_match(self::ACK_PATTERN, $error, $matches);
         return FailSocketResponse::create()
             ->setErrorCode(isset($matches[1]) ? $matches[1] : 0)
-            ->setLineNumber(isset($matches[1]) ? $matches[2] : 0)
-            ->setCommand(isset($matches[1]) ? $matches[3] : 0)
-            ->setMessage(isset($matches[1]) ? $matches[4] : 0)
+            ->setLineNumber(isset($matches[2]) ? $matches[2] : 0)
+            ->setCommand(isset($matches[3]) ? $matches[3] : '')
+            ->setMessage(isset($matches[4]) ? $matches[4] : '')
         ;
     }
 
