@@ -33,7 +33,7 @@ class SocketResponse implements Response
             if (array_key_exists($matches[1], $this->responseData)) {
 
                 if (!is_array($this->responseData[$matches[1]])) {
-                    $this->responseData[$matches[1]][] = $this->responseData[$matches[1]];
+                    $this->responseData[$matches[1]] = [$this->responseData[$matches[1]]];
                 }
 
                 $this->responseData[$matches[1]][] = $matches[2];
