@@ -49,7 +49,7 @@ class SocketConnection implements StatefulConnection
     {
         $this->checkConnection();
         fputs($this->socket, $this->prepareCommand($command, $arguments));
-        return SocketResponse::fromRaw(explode("\n", $this->reader->readAll()))->setContext($command);
+        return SocketResponse::fromRaw(explode("\n", $this->reader->readAll()), $command);
     }
 
     /** {@inheritdoc} */

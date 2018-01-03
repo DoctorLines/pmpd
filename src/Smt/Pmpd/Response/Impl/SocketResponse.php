@@ -20,29 +20,17 @@ class SocketResponse implements Response
     /**
      * Constructor.
      * @param array $raw
+     * @param string $context
      */
-    private function __construct(array $raw)
+    private function __construct(array $raw, $context = '')
     {
         if (count($raw) == 0) {
             $this->empty = true;
         }
-        foreach ($raw as $responseLine) {
-            preg_match('/(\w+)\:\ (.*)$/', $responseLine, $matches);
 
-            // Convert repeated kes to data array
-            if (array_key_exists($matches[1], $this->responseData)) {
+        $this->setContext($context);
 
-                if (!is_array($this->responseData[$matches[1]])) {
-                    $this->responseData[$matches[1]] = [$this->responseData[$matches[1]]];
-                }
-
-                $this->responseData[$matches[1]][] = $matches[2];
-
-            } else {
-                // Default behavior
-                $this->responseData[$matches[1]] = $matches[2];
-            }
-        }
+        $this->parseData($raw);
     }
 
     /**
@@ -99,5 +87,77 @@ class SocketResponse implements Response
     {
         $this->context = $context;
         return $this;
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    public function contextIs($value)
+    {
+        return strpos($this->context, $value) === 0;
+    }
+
+    protected function parseData($raw)
+    {
+        switch(true) {
+            case $this->contextIs('listplaylistinfo') :
+                return $this->parseAsCollectionOf('file', $raw);
+            default :
+                return $this->parseDefault($raw);
+        }
+    }
+
+    protected function parseDefault($raw)
+    {
+        foreach ($raw as $line) {
+            list($key, $value) = $this->parseLine($line);
+
+            // Convert repeated kes to data array
+            if (array_key_exists($key, $this->responseData)) {
+
+                if (!is_array($this->responseData[$key])) {
+                    $this->responseData[$key] = [$this->responseData[$key]];
+                }
+
+                $this->responseData[$key][] = $value;
+
+            } else {
+                // Default behavior
+                $this->responseData[$key] = $value;
+            }
+        }
+        return $this;
+    }
+
+    protected function parseAsCollectionOf($splitKey, $raw)
+    {
+        $data = [];
+        foreach ($raw AS $line) {
+            list($key, $value) = $this->parseLine($line);
+
+            if (!$lineData) {
+                continue;
+            }
+
+            if ($key === $splitKey) {
+                // Add new element
+                $data[] = [];
+            }
+            $pos = count($data) - 1;
+            if ($pos >= 0) {
+                $data[$pos][$key] = $value;
+            }
+        }
+
+        $this->responseData = $data;
+        return $this;
+    }
+
+    protected function parseLine($line)
+    {
+        return preg_match('/(\w+)\:\ (.*)$/', $line, $matches)
+            ? (array_shift($matches) ? $matches : null)
+            : null;
     }
 }
