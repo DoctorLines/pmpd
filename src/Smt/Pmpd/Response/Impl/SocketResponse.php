@@ -15,7 +15,7 @@ class SocketResponse implements Response
     protected $context;
     private $empty = false;
 
-    const ACK_PATTERN = '/^ACK\ \[([0-9]+)\@([0-9]+)\]\ \{(\w+)\}\ (.*)$/';
+    const ACK_PATTERN = '/^ACK\ \[([0-9]+)\@([0-9]+)\]\ \{(\w*)\}\ (.*)$/';
 
     /**
      * Constructor.
