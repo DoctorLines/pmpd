@@ -1,5 +1,5 @@
 {
-  "name": "smt/pmpd",
+  "name": "doctorlines/pmpd",
   "description": "PHP Music Player Daemon control implementation",
   "license": "MIT",
   "authors": [
@@ -9,8 +9,7 @@
     }
   ],
   "require": {
-    "php": ">=5.6",
-    "smt/enumeration": "~1"
+    "php": ">=5.6"
   },
   "require-dev": {
     "smt/open-popo": "~1",
