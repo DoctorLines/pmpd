@@ -36,9 +36,10 @@ class SocketResponse implements Response
     /**
      * Create response from raw one
      * @param array $raw Raw data (lines)
+     * @param string $context Command line
      * @return FailSocketResponse|SocketResponse
      */
-    public static function fromRaw(array $raw)
+    public static function fromRaw(array $raw, $context = '')
     {
         $last = $raw[count($raw) - 2];
         if (strncmp($last, 'ACK', 3) === 0) {
@@ -46,7 +47,7 @@ class SocketResponse implements Response
         }
         array_pop($raw);
         array_pop($raw);
-        return new self($raw);
+        return new self($raw, $context);
     }
 
     /** {@inheritdoc} */
@@ -136,10 +137,6 @@ class SocketResponse implements Response
         foreach ($raw AS $line) {
             list($key, $value) = $this->parseLine($line);
 
-            if (!$lineData) {
-                continue;
-            }
-
             if ($key === $splitKey) {
                 // Add new element
                 $data[] = [];
@@ -154,10 +151,10 @@ class SocketResponse implements Response
         return $this;
     }
 
-    protected function parseLine($line)
+    protected function parseLine($line, $default = ['', ''])
     {
         return preg_match('/(\w+)\:\ (.*)$/', $line, $matches)
-            ? (array_shift($matches) ? $matches : null)
-            : null;
+            ? (array_shift($matches) ? $matches : $default)
+            : $default;
     }
 }
